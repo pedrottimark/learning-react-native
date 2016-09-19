@@ -1,27 +1,27 @@
-import { StyleSheet } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 
-var fonts = StyleSheet.create({
+const { width } = Dimensions.get('window');
+
+const headerSize = width / 7;
+const normalSize = width / 15;
+
+const lineHeight = 1.4;
+
+export const headerHeight = headerSize * lineHeight;
+export const normalHeight = normalSize * lineHeight; // for Input, see layout
+
+export default StyleSheet.create({
+  header: {
+    fontFamily: 'Avenir Medium',
+    fontSize: headerSize,
+    lineHeight: headerHeight,
+  },
   normal: {
-    fontSize: 24,
-    fontFamily: 'Avenir Medium'
+    fontFamily: 'Avenir Medium',
+    fontSize: normalSize,
+    lineHeight: normalHeight,
   },
-
-  alternate: {
-    fontSize: 50,
-    fontFamily: 'Avenir Heavy',
-    color: '#FFFFFF'
-  },
-
-  big: {
-    fontSize: 32,
-    alignSelf: 'center',
-    fontFamily: 'Avenir Medium'
-  }
 });
-
-var scalingFactors = {
-  normal: 15,
-  big: 7
-};
-
-module.exports = {fonts, scalingFactors};

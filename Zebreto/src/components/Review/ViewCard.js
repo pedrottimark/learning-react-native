@@ -1,140 +1,86 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
-  StyleSheet,
-  View
+  View,
 } from 'react-native';
 
 import Button from './../Button';
+import InterfaceText from './../InterfaceText';
+import MessageButton from './../MessageButton';
 import NormalText from './../NormalText';
-import HeadingText from './../HeadingText';
-
-import { CardActions } from './../../actions';
 
 import colors from './../../styles/colors';
+import layout from './../../styles/layout';
 
-class ContinueButton extends Component {
-  render() {
-    let text = this.props.wasCorrect
-      ? 'Correct! Next card?'
-      : 'Oops, not quite. Next card?'
-      ;
-    return (
-      <Button onPress={this.props.onPress} style={styles.continueButton}>
-        <NormalText>{text}</NormalText>
-      </Button>
-      );
-  }
-}
-
-ContinueButton.propTypes = {
-  onPress: React.PropTypes.func.isRequired,
-  wasCorrect: React.PropTypes.bool.isRequired
-}
-
-class ViewCard extends Component {
+// The component to answer a review question for one side of a card.
+export default class ViewCard extends Component {
   static displayName = 'ViewCard';
+  static propTypes = {
+    answerQuestion: PropTypes.func.isRequired,
+    cardQuestion: PropTypes.shape({
+      answers: PropTypes.arrayOf(PropTypes.string).isRequired,
+      answerCorrect: PropTypes.string.isRequired,
+      question: PropTypes.string.isRequired,
+    }).isRequired,
+    continueReviewing: PropTypes.func.isRequired,
+    correctlyAnswered: PropTypes.bool.isRequired,
+    showingAnswer: PropTypes.bool.isRequired,
+    stopReviewing: PropTypes.func.isRequired,
+  };
 
-  _getInitialState() {
-    return {
-      showingAnswer: false,
-      wasCorrect: null
-    };
+  _answerQuestionCorrectly = () => {
+    this.props.answerQuestion(true);
   }
 
-  constructor(props) {
-    super(props);
-    this.state = this._getInitialState();
+  _answerQuestionIncorrectly = () => {
+    this.props.answerQuestion(false);
   }
 
-  _continue = () => {
-    this.setState(this._getInitialState());
-    this.props.continue();
-  }
-
-  _selectAnswer = (correct) => {
-    this.props.onReview(correct);
-    this.setState({
-      showingAnswer: true,
-      wasCorrect: correct
-    });
-    CardActions.review(this.props.cardID, this.props.orientation, correct)
-  }
-
-  _buttons = () => {
-    if (!this.props.answers) {
-      return null;
-    }
-
-    return this.props.answers.map((a) => {
-      let isCorrectAnswer = a === this.props.correctAnswer;
-      let buttonStyle = [styles.options];
-      if (this.state.showingAnswer && isCorrectAnswer) {
-        if (this.state.wasCorrect) {
-          buttonStyle.push(styles.rightAnswer);
-        }
-        else {
-          buttonStyle.push(styles.wrongAnswer);
-        }
-      }
+  // The buttons for the correct answer and the incorrect answers to the question.
+  _answerButtons() {
+    const { cardQuestion, showingAnswer } = this.props;
+    const { answers, answerCorrect } = cardQuestion;
+    return answers.map((answer, i) => {
+      const isCorrect = answer === answerCorrect;
+      const style = showingAnswer && isCorrect
+        ? colors.correct
+        : colors.review;
+      // Refer to methods of instance instead of binding event handlers in render.
+      const onPress = isCorrect
+        ? this._answerQuestionCorrectly
+        : this._answerQuestionIncorrectly;
       return (
-        <Button
-          key={a}
-          disabled={this.state.showingAnswer}
-          style={buttonStyle}
-          onPress={this._selectAnswer.bind(this, a === this.props.correctAnswer)}>
-          <NormalText>
-            {a}
-          </NormalText>
+        <Button key={i} style={style} onPress={onPress} disabled={showingAnswer}>
+          <NormalText>{answer}</NormalText>
         </Button>
-        );
+      );
     });
+  }
+
+  // The button to do either of the following:
+  // Continue reviewing after seeing feedback for an answer.
+  // Stop reviewing before answering any question.
+  _secondaryButton() {
+    return this.props.showingAnswer
+      ? (
+          <MessageButton style={colors.continue} onPress={this.props.continueReviewing}>
+            <NormalText>{this.props.correctlyAnswered ? 'Correct!' : 'Oops, not quite.'}</NormalText>
+            <NormalText>Continue</NormalText>
+          </MessageButton>
+        )
+      : (
+          <Button style={colors.stop} onPress={this.props.stopReviewing}>
+            <InterfaceText>Stop Reviewing</InterfaceText>
+          </Button>
+        );
   }
 
   render() {
-    var buttons = this._buttons();
     return (
       <View>
-        <HeadingText>
-          {this.props.prompt}
-        </HeadingText>
-        {buttons}
-        {
-          this.state.showingAnswer
-          ? <ContinueButton onPress={this._continue}
-                            wasCorrect={this.state.wasCorrect}/>
-          : <Button onPress={this.props.quit} style={styles.continueButton}>
-              <NormalText>Stop Reviewing</NormalText>
-            </Button>
-        }
+        <NormalText style={layout.normal}>{this.props.cardQuestion.question}</NormalText>
+        {this._answerButtons()}
+        {this._secondaryButton()}
       </View>
-      );
+    );
   }
 }
-
-ViewCard.propTypes = {
-  continue: React.PropTypes.func.isRequired,
-  quit: React.PropTypes.func.isRequired,
-  onReview: React.PropTypes.func.isRequired,
-  orientation: React.PropTypes.string.isRequired,
-  cardID: React.PropTypes.string.isRequired,
-  answers: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-  correctAnswer: React.PropTypes.string.isRequired,
-  prompt: React.PropTypes.string.isRequired
-}
-
-const styles = StyleSheet.create({
-  options: {
-    backgroundColor: '#FFFFFF'
-  },
-  continueButton: {
-    backgroundColor: colors.tan
-  },
-  rightAnswer: {
-    backgroundColor: colors.green
-  },
-  wrongAnswer: {
-    backgroundColor: colors.pink
-  }
-});
-
-export default ViewCard;

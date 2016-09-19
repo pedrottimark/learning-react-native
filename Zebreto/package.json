@@ -1,16 +1,25 @@
 {
   "name": "Zebreto",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
+    "lint": "eslint --cache src",
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
     "lodash": "^3.10.1",
     "md5": "^2.1.0",
     "moment": "^2.13.0",
-    "react": "15.0.2",
-    "react-native": "^0.26.3",
-    "reflux": "^0.4.1"
+    "react": "^15.3.2",
+    "react-native": "^0.33.0",
+    "react-redux": "^4.4.5",
+    "redux": "^3.6.0",
+    "redux-thunk": "^2.1.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^6.1.2",
+    "eslint": "^3.5.0",
+    "eslint-plugin-react": "^6.2.2",
+    "redux-logger": "^2.6.1"
   }
 }

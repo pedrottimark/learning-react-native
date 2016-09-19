@@ -1,78 +1,66 @@
-import React, { Component } from 'react';
+import React, { PureComponent, PropTypes } from 'react';
 import {
   StyleSheet,
-  View
+  View,
 } from 'react-native';
 
-import DeckModel from './../../data/Deck';
-
 import Button from './../Button';
+import InterfaceText from './../InterfaceText';
 import NormalText from './../NormalText';
 
 import colors from './../../styles/colors';
+import layout from './../../styles/layout';
 
-class Deck extends Component {
+// The component to start an activity with a deck.
+// PureComponent: avoid re-rendering non-active decks when a card is created or reviewed.
+export default class Deck extends PureComponent {
   static displayName = 'Deck';
+  static propTypes = {
+    createCards: PropTypes.func.isRequired,
+    deck: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+    }).isRequired,
+    nCardsDue: PropTypes.number.isRequired,
+    reviewDeck: PropTypes.func.isRequired,
+  };
 
-  _review = () => {
-    this.props.onReview(this.props.deck.id);
+  _reviewDeck = () => {
+    this.props.reviewDeck(this.props.deck.id);
   }
 
-  _addCards = () => {
-    this.props.addCards(this.props.deck);
+  // The button is disabled when no cards are due for review.
+  _reviewDisabled() {
+    return this.props.nCardsDue === 0;
+  }
+
+  _createCards = () => {
+    this.props.createCards(this.props.deck.id);
   }
 
   render() {
     return (
-      <View style={styles.deckGroup}>
-
-        <Button style={styles.deckButton} onPress={this._review}>
-          <NormalText>
-            {this.props.deck.name}: {this.props.deck.dueCards} due
-          </NormalText>
+      <View style={layout.row}>
+        <Button style={[colors.review, styles.reviewButton]} onPress={this._reviewDeck} disabled={this._reviewDisabled()}>
+          <View style={layout.rowAlignedLeftAndRight}>
+            <NormalText>{this.props.deck.name}</NormalText>
+            <NormalText>{`${this.props.nCardsDue} due`}</NormalText>
+          </View>
         </Button>
-
-        <Button style={styles.editButton}
-          onPress={this._addCards}>
-          <NormalText>+</NormalText>
+        <Button style={[colors.create, styles.createButton]} onPress={this._createCards}>
+          <InterfaceText>+</InterfaceText>
         </Button>
       </View>
-      );
+    );
   }
 }
 
-Deck.propTypes = {
-  onReview: React.PropTypes.func.isRequired,
-  deck: React.PropTypes.instanceOf(DeckModel),
-  addCards: React.PropTypes.func.isRequired
-};
-
 const styles = StyleSheet.create({
-  deckGroup: {
+  reviewButton: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    padding: 10,
-    marginBottom: 5
   },
-  deckButton: {
-    backgroundColor: colors.pink,
-    padding: 10,
-    margin: 0,
-    flex: 1
-  },
-  editButton: {
+  createButton: {
+    flex: 0,
     width: 60,
-    backgroundColor: colors.pink2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    padding: 0,
-    paddingTop: 10,
-    paddingBottom: 10,
-    margin: 0,
-    flex: 0
-  }
+  },
 });
-
-export default Deck;

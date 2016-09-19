@@ -1,101 +1,162 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
-  StyleSheet,
-  View
+  View,
 } from 'react-native';
 
-import { CardActions } from './../../actions';
+import Button from './../Button';
+import Input from './../Input';
+import InterfaceText from './../InterfaceText';
+import MessageButton from './../MessageButton';
+import NormalText from './../NormalText';
 
-import DeckModel from './../../data/Deck';
+import { connect } from 'react-redux';
 
-import Button from '../Button';
-import LabeledInput from '../LabeledInput';
-import NormalText from '../NormalText';
+import moment from 'moment';
+
+import {
+  createCard,
+  reviewDeck,
+  stopCreating,
+} from './../../actions';
+import {
+  someCardDueForReview,
+} from './../../data/cards';
+import {
+  deckIDInitial,
+} from './../../data/decks';
 
 import colors from './../../styles/colors';
+import layout from './../../styles/layout';
 
+// The route scene component to create cards in a deck.
 class NewCard extends Component {
+  static displayName = 'NewCard';
+  static propTypes = {
+    deckID: PropTypes.string.isRequired,
+    createCard: PropTypes.func.isRequired,
+    reviewDeck: PropTypes.func.isRequired,
+    someCardDue: PropTypes.bool.isRequired,
+    status: PropTypes.string.isRequired,
+    stopCreating: PropTypes.func.isRequired,
+  };
+
   constructor(props) {
     super(props);
-    this.state = {
-      font: '',
-      back: ''
+    this.state = this._getInitialState();
+  }
+
+  _getInitialState() {
+    return {
+      front: '',
+      back: '',
+      continuing: false,
     };
   }
 
-  _handleFront = (text) => {
-    this.setState({front: text});
+  _onChangeFront = (text) => {
+    this.setState({
+      front: text,
+    });
   }
 
-  _handleBack = (text) => {
-    this.setState({back: text});
+  _onChangeBack = (text) => {
+    this.setState({
+      back: text,
+    });
+  }
+
+  _refInputFront = (input) => {
+    this._inputFront = input;
+  }
+
+  _refInputBack = (input) => {
+    this._inputBack = input;
   }
 
   _createCard = () => {
-    CardActions.createCard(this.state.front,
-      this.state.back,
-      this.props.deck.id);
-    this.props.nextCard(this.props.deck);
+    this.props.createCard(this.state.front, this.state.back, this.props.deckID);
+    this.setState(this._getInitialState());
+    this._inputFront.clear();
+    this._inputBack.clear();
+  }
+
+  // The button is disabled when either side of the card is still empty.
+  _createDisabled() {
+    return this.state.front === '' || this.state.back === '';
+  }
+
+  // Click to acknowledge the message that appears if creating fails.
+  _continue = () => {
+    this.setState({
+      continuing: true,
+    });
   }
 
   _reviewDeck = () => {
-    this.props.review(this.props.deck.id);
+    this.props.reviewDeck(this.props.deckID);
+  }
+
+  // The button is disabled when no cards are due for review.
+  _reviewDisabled() {
+    return !this.props.someCardDue;
+  }
+
+  _createButton() {
+    return this.props.status === 'CREATING_CARD_FAILED' && !this.state.continuing
+      ? (
+          <MessageButton style={colors.failure} onPress={this._continue}>
+            <NormalText>Card already exists</NormalText>
+            <NormalText>Continue</NormalText>
+          </MessageButton>
+        )
+      : (
+          <Button style={colors.create} onPress={this._createCard} disabled={this._createDisabled()}>
+            <InterfaceText>Create Card</InterfaceText>
+          </Button>
+        );
   }
 
   render() {
-    return (
-      <View>
-
-        <LabeledInput
-          label="Front"
-          clearOnSubmit={false}
-          onEntry={this._handleFront}
-          onChange={this._handleFront}/>
-        <LabeledInput
-          label="Back"
-          clearOnSubmit={false}
-          onEntry={this._handleBack}
-          onChange={this._handleBack}/>
-
-        <Button style={styles.createButton}
-          onPress={this._createCard}>
-          <NormalText>Create Card</NormalText>
-        </Button>
-
-        <View style={styles.buttonRow}>
-          <Button style={styles.secondaryButton}
-            onPress={this.props.quit}>
-            <NormalText>Done</NormalText>
-          </Button>
-
-          <Button style={styles.secondaryButton}
-            onPress={this._reviewDeck}>
-            <NormalText>Review Deck</NormalText>
-          </Button>
-        </View>
-
-      </View>
-      );
+    return this.props.deckID === deckIDInitial
+      ? null // After the state change from STOP_CREATING and before the scene changes.
+      : (
+          <View style={layout.scene}>
+            <Input
+              placeholder='front of a new card'
+              refInput={this._refInputFront}
+              onChange={this._onChangeFront}
+              onEntry={this._onChangeFront}
+              clearOnSubmit={false}
+            />
+            <Input
+              placeholder='back of a new card'
+              refInput={this._refInputBack}
+              onChange={this._onChangeBack}
+              onEntry={this._onChangeBack}
+              clearOnSubmit={false}
+            />
+            {this._createButton()}
+            <Button style={colors.review} onPress={this._reviewDeck} disabled={this._reviewDisabled()}>
+              <InterfaceText>Review Deck</InterfaceText>
+            </Button>
+            <Button style={colors.stop} onPress={this.props.stopCreating}>
+              <InterfaceText>Stop Creating</InterfaceText>
+            </Button>
+          </View>
+        );
   }
 }
 
-NewCard.propTypes = {
-  deck: React.PropTypes.instanceOf(DeckModel),
-  quit: React.PropTypes.func.isRequired,
-  nextCard: React.PropTypes.func.isRequired,
-  review: React.PropTypes.func.isRequired
+// A container component subscribes to relevant parts of state in the Redux store.
+const mapStateToProps = ({ cards, deckID, status }) => ({
+  deckID,
+  someCardDue: someCardDueForReview(cards, deckID, moment()),
+  status,
+});
+const mapDispatchToProps = {
+  createCard,
+  reviewDeck,
+  stopCreating,
 };
 
-const styles = StyleSheet.create({
-  createButton: {
-    backgroundColor: colors.green
-  },
-  secondaryButton: {
-    backgroundColor: colors.blue
-  },
-  buttonRow: {
-    flexDirection: 'row'
-  }
-});
-
-export default NewCard;
+export default connect(mapStateToProps, mapDispatchToProps)(NewCard);

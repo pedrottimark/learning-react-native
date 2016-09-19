@@ -1,48 +1,36 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
-  StyleSheet,
   View,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 
-import colors from './../styles/colors';
+import layout from './../styles/layout';
 
-class Button extends Component {
+// The component to receive tapped input.
+export default class Button extends Component {
   static displayName = 'Button';
+  static propTypes = {
+    children: PropTypes.node.isRequired,
+    disabled: PropTypes.bool,
+    onPress: PropTypes.func.isRequired,
+    style: View.propTypes.style,
+  };
+  static defaultProps = {
+    disabled: false,
+  };
 
   render() {
-    let opacity = this.props.disabled ? 1 : 0.5;
+    const { disabled } = this.props;
     return (
-      <TouchableOpacity
-        activeOpacity={opacity}
+      <TouchableOpacity style={[layout.normal, this.props.style]}
         onPress={this.props.onPress}
-        style={[styles.wideButton, this.props.style]}>
-        {this.props.children}
+        activeOpacity={0.5}
+        disabled={disabled}
+      >
+        <View opacity={disabled ? 0.5 : 1}>
+          {this.props.children}
+        </View>
       </TouchableOpacity>
-      );
+    );
   }
 }
-
-Button.propTypes = {
-  onPress: React.PropTypes.func.isRequired,
-  style: View.propTypes.style,
-  children: React.PropTypes.object,
-  disabled: React.PropTypes.bool
-};
-
-Button.defaultProps = {
-  disabled: false
-};
-
-export default Button;
-
-const styles = StyleSheet.create({
-  wideButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-    padding: 10,
-    margin: 10,
-    backgroundColor: colors.pink
-  }
-});

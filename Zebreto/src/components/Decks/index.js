@@ -1,86 +1,88 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
-  View
+  View,
 } from 'react-native';
 
-import Reflux from 'reflux';
-import DeckMetaStore from './../../stores/DeckMetaStore';
-import CardsStore from './../../stores/CardsStore';
-import { DeckActions, CardActions } from './../../actions';
-import DeckModel from './../../data/Deck';
-
-import Deck from './Deck';
 import Button from './../Button';
-import NormalText from './../NormalText';
-
+import InterfaceText from './../InterfaceText';
+import Deck from './Deck';
 import DeckCreation from './DeckCreation';
 
-var Decks = React.createClass({
-  displayName: 'Decks',
+import { connect } from 'react-redux';
 
-  mixins: [Reflux.listenTo(DeckMetaStore, 'onDecksChange')],
+import moment from 'moment';
 
-  getInitialState() {
-    return {
-      decks: []
-    };
-  },
+import {
+  createCards,
+  createDeck,
+  deleteAll,
+  reviewDeck,
+} from './../../actions';
+import {
+  countCardsDueForReview,
+} from './../../data/cards';
 
-  propTypes: {
-    createdDeck: React.PropTypes.func.isRequired,
-    review: React.PropTypes.func.isRequired
-  },
+import colors from './../../styles/colors';
+import layout from './../../styles/layout';
 
-  componentDidMount() {
-    CardsStore.emit();
-    DeckMetaStore.emit();
-  },
+// The route scene component to start activities with decks.
+class Decks extends Component {
+  static displayName = 'Decks';
+  static propTypes = {
+    createCards: PropTypes.func.isRequired,
+    createDeck: PropTypes.func.isRequired,
+    decks: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+    })).isRequired,
+    deleteAll: PropTypes.func.isRequired,
+    nCardsDue: PropTypes.objectOf(PropTypes.number).isRequired,
+    reviewDeck: PropTypes.func.isRequired,
+    status: PropTypes.string.isRequired,
+  };
 
-  onDecksChange(decks) {
-    this.setState({
-      decks: decks
-    });
-  },
-
-  _newDeck(newDeckName) {
-    let deck = new DeckModel(newDeckName);
-    DeckActions.createDeck(deck);
-    this.props.createdDeck(deck);
-  },
-
-  _getDecks() {
-    if (!this.state.decks) {
-      return null;
-    }
-
-    return this.state.decks.map((deck) => {
-      return (
-        <Deck
-          deck={deck}
-          addCards={this.props.createdDeck}
-          onReview={this.props.review}
-          key={deck.id} />);
-    });
-  },
-
-  deleteAll() {
-    DeckActions.deleteAllDecks();
-    CardActions.deleteAllCards();
-  },
+  // The button is disabled when either side of the card is still empty.
+  _deleteDisabled() {
+    return this.props.decks.length === 0;
+  }
 
   render() {
+    // View wrapper around decks is necessary to separate their `flex: 1`
+    // from the `flex: 1` of the scene layout!
+    const { createCards, createDeck, decks, deleteAll, nCardsDue, reviewDeck, status } = this.props;
     return (
-      <View>
-        {this._getDecks()}
-        <DeckCreation newDeck={this._newDeck}/>
-        { /*
-        <Button onPress={this.deleteAll}>
-          <NormalText>Delete All the Things</NormalText>
+      <View style={layout.scene}>
+        <View>
+          {
+            decks.map((deck) => (
+              <Deck key={deck.id}
+                deck={deck}
+                nCardsDue={nCardsDue.get(deck.id)}
+                createCards={createCards}
+                reviewDeck={reviewDeck}
+              />
+            ))
+          }
+        </View>
+        <DeckCreation createDeck={createDeck} status={status}/>
+        <Button style={colors.delete} onPress={deleteAll} disabled={this._deleteDisabled()}>
+          <InterfaceText>Delete All</InterfaceText>
         </Button>
-        */ }
       </View>
     );
   }
-});
+}
 
-module.exports = Decks;
+// A container component subscribes to relevant parts of state in the Redux store.
+const mapStateToProps = ({ cards, decks, status }) => ({
+  decks,
+  nCardsDue: countCardsDueForReview(cards, decks, moment()),
+  status,
+});
+const mapDispatchToProps = {
+  createCards,
+  createDeck,
+  deleteAll,
+  reviewDeck,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Decks);

@@ -1,91 +1,123 @@
-import React, { Component } from 'react';
+import React, { Component, createElement } from 'react';
 import {
-  StyleSheet,
   View,
-  Navigator
+  Navigator,
 } from 'react-native';
 
-import Reflux from 'reflux';
+import Header from './Header';
 
-import {DeckActions} from './../actions';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { Provider } from 'react-redux';
 
-import Decks from './Decks';
-import Review from './Review';
-import NewCard from './NewCard';
-import Heading from './Header';
+import { receiveData } from './../actions';
+import { readData, writeCards, writeDecks } from './../data/storage';
+import reducer from './../reducers';
+import componentForState from './../scenes';
+import layout from './../styles/layout';
 
-import CardsStore from './../stores/CardsStore';
-import DeckMetaStore from './../stores/DeckMetaStore';
+// Redux middleware:
+// Process thunk functions in addition to action objects.
+const middleware = [thunk];
+// In development, log to console: prev state, action, and next state.
+if (process.env.NODE_ENV === 'development') {
+  const createLogger = require('redux-logger');
+  const logger = createLogger({
+    actionTransformer: (action) => action.date // if action has a date property
+      ? Object.assign({}, action, {
+        date: action.date.toISOString(), // display its value as a string
+      })
+      : action,
+  });
+  middleware.push(logger);
+}
 
-var Zebreto = React.createClass({
-  displayName: 'Zebreto',
+// Redux is a predictable state container for JavaScript apps.
+const store = createStore(reducer, applyMiddleware(...middleware));
 
-  mixins: [Reflux.connect(DeckMetaStore, 'deckMetas')],
+// Zebreto is a flashcard application based on the Spaced Repetition System,
+// a learning strategy for effective memorization.
+class Zebreto extends Component {
+  static displayName = 'Zebreto';
 
-  componentWillMount() {
-    CardsStore.emit();
-  },
+  constructor(props) {
+    super(props);
+    this._componentInitial = componentForState(store.getState());
+  }
 
-  review(deckID) {
-    DeckActions.reviewDeck(deckID);
-    this.refs.navigator.push({
-      name: 'review',
-      data: {
-        deckID: deckID
+  componentDidMount() {
+    // Write cards or decks whenever they have changes.
+    let { cards: cardsPrev, decks: decksPrev } = store.getState();
+    const writeData = () => {
+      const { cards, decks } = store.getState();
+
+      // Can test for changes by strict inequality because state is immutable :)
+      if (cardsPrev !== cards) {
+        writeCards(cards); // asynchronous
+        cardsPrev = cards;
       }
-    });
-  },
-
-  createdDeck(deck) {
-    this.refs.navigator.push({
-      name: 'createCards',
-      data: {
-        deck: deck
+      if (decksPrev !== decks) {
+        writeDecks(decks); // asynchronous
+        decksPrev = decks;
       }
+    };
+
+    // Cause navigator to render the scene whenever it changes.
+    // Minimum Viable Router :)
+    let componentPrev = this._componentInitial;
+    const changeScene = () => {
+      const component = componentForState(store.getState());
+
+      // Can test for changes by strict inequality because component is a class :)
+      if (componentPrev !== component) {
+        if (this._componentInitial === component) {
+          this._navigator.popToTop(); // Top = initialRoute of Navigator
+        }
+        else {
+          this._navigator.push({ component });
+        }
+        componentPrev = component;
+      }
+    };
+
+    // Redux listener
+    this.unsubscribe = store.subscribe(() => {
+      writeData();
+      changeScene();
     });
-  },
 
-  goHome() {
-    this.refs.navigator.popToTop();
-  },
+    // After the Navigator rendered the component for the initial app state
+    // and the listener subscribed to changes in the app state:
+    // Read cards and decks from storage asynchronously, and then dispatch an action.
+    readData((data) => {
+      store.dispatch(receiveData(data));
+    });
+  }
 
-  _renderScene(route) {
-    switch (route.name) {
-    case 'decks':
-      return <Decks review={this.review}
-        createdDeck={this.createdDeck}/>;
-    case 'createCards':
-      return <NewCard
-        review={this.review}
-        quit={this.goHome}
-        nextCard={this.createdDeck}
-        {...route.data}/>;
-    case 'review':
-      return <Review quit={this.goHome} {...route.data} />;
-    default:
-      console.error('Encountered unexpected route: ' + route.name);
-    }
-    return <Decks/>;
-  },
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   render() {
     return (
-      <View style={styles.container}>
-        <Heading/>
+      <View style={layout.app}>
+        <Header/>
         <Navigator
-          ref='navigator'
-          initialRoute={{name: 'decks'}}
-          renderScene={this._renderScene}/>
+          ref={(navigator) => {
+            this._navigator = navigator;
+          }}
+          initialRoute={{ component: this._componentInitial }}
+          renderScene={({ component }) => createElement(component)}
+        />
       </View>
     );
   }
-});
+}
 
-var styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 30
-  }
-});
-
-export default Zebreto;
+// Provide the store using react-redux to container components for route scenes.
+// eslint-disable-next-line react/display-name
+export default () => (
+  <Provider store={store}>
+    <Zebreto/>
+  </Provider>
+);
