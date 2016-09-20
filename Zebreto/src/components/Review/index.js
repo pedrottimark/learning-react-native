@@ -43,8 +43,8 @@ class Review extends Component {
     const { cards, deckID } = this.props;
     const { cardQuestions, progress } = getInitialStateReviewing(cards, deckID, moment()); // impure
 
+    this._cardQuestions = cardQuestions; // internal data that does not change
     this.state = {
-      cardQuestions, // internal data that does not change
       progress, // internal data that does change
       feedback: this._feedbackUnanswered(), // external interface that does change
     };
@@ -67,11 +67,10 @@ class Review extends Component {
   }
 
   _answerQuestion = (correct) => {
-    const { cardQuestions } = this.state;
-    const progress = progressAnswered(this.state.progress, cardQuestions, correct);
+    const progress = progressAnswered(this.state.progress, this._cardQuestions, correct);
 
     // Update application state when the last question for a card is answered.
-    const cardResult = cardResultMostRecentlyAnswered(progress, cardQuestions);
+    const cardResult = cardResultMostRecentlyAnswered(progress, this._cardQuestions);
     if (cardResult.nUnanswered === 0) {
       this.props.updateCard(cardResult.cardID, cardResult.correct);
     }
@@ -91,11 +90,11 @@ class Review extends Component {
   }
 
   _contents() {
-    const { cardQuestions, feedback, progress } = this.state;
+    const { feedback, progress } = this.state;
     const { showingAnswer, correctlyAnswered } = feedback;
     const { nAnswered, nCorrect } = progress;
 
-    if (showingAnswer || nAnswered < cardQuestions.length) {
+    if (showingAnswer || nAnswered < this._cardQuestions.length) {
       const index = showingAnswer
         ? nAnswered - 1 // show feedback for answer to the last question
         : nAnswered; // show the next question
@@ -103,7 +102,7 @@ class Review extends Component {
       return (
         <ViewCard
           answerQuestion={this._answerQuestion}
-          cardQuestion={cardQuestions[index]}
+          cardQuestion={this._cardQuestions[index]}
           continueReviewing={this._continueReviewing}
           correctlyAnswered={correctlyAnswered}
           showingAnswer={showingAnswer}

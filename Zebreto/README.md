@@ -784,8 +784,8 @@ class Review extends Component {
     const { cards, deckID } = this.props;
     const { cardQuestions, progress } = getInitialStateReviewing(cards, deckID, moment()); // impure
 
+    this._cardQuestions = cardQuestions; // internal data that does not change
     this.state = {
-      cardQuestions, // internal data that does not change
       progress, // internal data that does change
       feedback: this._feedbackUnanswered(), // external interface that does change
     };
@@ -808,11 +808,10 @@ class Review extends Component {
   }
 
   _answerQuestion = (correct) => {
-    const { cardQuestions } = this.state;
-    const progress = progressAnswered(this.state.progress, cardQuestions, correct);
+    const progress = progressAnswered(this.state.progress, this._cardQuestions, correct);
 
     // Update application state when the last question for a card is answered.
-    const cardResult = cardResultMostRecentlyAnswered(progress, cardQuestions);
+    const cardResult = cardResultMostRecentlyAnswered(progress, this._cardQuestions);
     if (cardResult.nUnanswered === 0) {
       this.props.updateCard(cardResult.cardID, cardResult.correct);
     }
@@ -854,7 +853,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(Review);
 The `reviewing` module applies the “Learn Once, Write Anywhere” principle of React:
 
 * `getInitialStateReviewing` encapsulates the impure steps to return properties of the initial component state, just as an *action creator* can encapsulate impure steps to create an action object to change application state.
-* `progressAnswered` returns a property of the next component state, just as a child *reducer* returns a property of the next application state. It is not a *pure* function, because a component does not require *immutable* state. To make it pure, you can install an additional dependency and uncomment one line of code: see a comment near the top of `src/data/reviewing.js`.
+* `progressAnswered` returns a property of the next component state, just as a child *reducer* returns a property of the next application state.
 * `cardResultMostRecentlyAnswered` is a *selector* function that computes derived data from component state, just as `someCardDueForReview` computes derived data from application state.
 
 ## React Native

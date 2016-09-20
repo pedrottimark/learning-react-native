@@ -1,8 +1,6 @@
 // Data consists of modules with plain objects instead of classes.
 
-// If you want `replaceCardResultAnswered` and `progressAnswered` to be pure functions,
-// then `npm install --save immutable` and uncomment the following line:
-// import { Map } from 'immutable'; // shadow ECMAScript Map
+import { Map } from 'immutable'; // shadow ECMAScript Map
 
 import { sample, shuffle } from 'lodash';
 
@@ -15,7 +13,6 @@ import {
 
 // Return the review question for one side of a card.
 function cardQuestionObject(cards, card, sideQuestion, nOther) {
-  console.log(card);
   const sideAnswer = sideOpposite(sideQuestion);
   const answerCorrect = card[sideAnswer];
   const cardsOther = sample(cards.filter((cardOther) => cardOther.id !== card.id), nOther); // impure
@@ -65,7 +62,6 @@ function replaceCardResultAnswered(cardResults, cardID, correct) {
 // Like an action creator, does not need to be pure.
 export function getInitialStateReviewing(cards, deckID, date) {
   const cardsInDeck = filterCardsInDeck(cards, deckID);
-  console.log(cardsInDeck);
   const cardsDue = filterCardsDueForReview(cardsInDeck, date);
   const nOther = 3; // Each card has up to 3 other answers.
   const cardQuestions = [];
