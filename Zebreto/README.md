@@ -257,7 +257,7 @@ const createDeckSucceeded = (deck) => ({
 
 ### Reducers
 
-Now you will see why the data modules export pure functions.
+Now you will see why the `cards` and `decks` modules export pure functions.
 
 > The reducer is a pure function that takes the previous state and an action, and returns the next state.
 
@@ -396,7 +396,7 @@ Redux has *unidirectional* data flow:
 
 1. A React component dispatches an action: `store.dispatch(action)`.
 2. The store calls its reducer function: given the previous state and the action, it returns the next state.
-3. The store calls any listeners that have been registered with `store.subscribe(listener)`. A listener function can call `store.getState()` to get the application state.
+3. The store calls any listener functions that have been registered with `store.subscribe(listener)`. A listener can call `store.getState()` to get the application state.
 
 After the `Zebreto` component mounts, it calls `readData` to read data from storage asynchronously, and then the callback function dispatches an action. In the previous sections, you saw some relevant code:
 
@@ -481,7 +481,7 @@ In contrast, because mutable data has only a current state, the cohesion would b
 
 What does Zebreto do with an action to create a deck, if a deck with that name already exists?
 
-In previous sections about actions and reducers, you saw the `'CREATE_DECK_SUCCEEDED'` action type. Here is the rest of the story.
+In previous sections about actions and reducers, you saw the `'CREATE_DECK_SUCCEEDED'` action type. Thank you for waiting patiently to see its counterpart, the `'CREATE_DECK_FAILED'` action type.
 
 > A thunk can be used to dispatch actions only if a certain condition is met. The inner function receives the store methods `dispatch` and `getState` as parameters.
 
@@ -861,9 +861,9 @@ The `reviewing` module applies the “Learn Once, Write Anywhere” principle of
 
 ### Navigator
 
-> You can use navigators to transition between multiple screens.
-A scene is nothing other than a React component that is typically rendered full screen.
-A route is an object that provides all the context that the navigator's renderScene function needs to render a scene.
+> * You can use navigators to transition between multiple screens.
+* A scene is nothing other than a React component that is typically rendered full screen.
+* A route is an object that provides all the context that the navigator's renderScene function needs to render a scene.
 
 Routing in Zebreto depends on application state:
 
