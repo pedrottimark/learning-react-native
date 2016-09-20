@@ -76,7 +76,6 @@ The code includes several features of ECMAScript 2015, also known as ES6:
 * computed property names
 * `const` or `let` instead of `var` declarations
 * destructuring
-* `Map` collection
 * modules: `import` and `export`
 * object property initializer shorthand
 * spread operator
@@ -1063,7 +1062,7 @@ The Zebreto application depends on the following packages:
 
 * React: `react`, `react-native`
 * Redux: `react-redux`, `redux`, `redux-thunk`
-* utilities: `lodash`, `md5`, `moment`
+* utilities: `immutable`, `lodash`, `md5`, `moment`
 
 The Zebreto project depends on the following packages for development only:
 
