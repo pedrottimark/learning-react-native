@@ -100,11 +100,30 @@ export function progressAnswered(progress, cardQuestions, correct) {
   };
 }
 
+// Selectors
+
 // Return the changed card result given the next state of progress.
-// Like a selector.
 export function cardResultMostRecentlyAnswered(progress, cardQuestions) {
   const { cardResults, nAnswered } = progress;
   const { cardID } = cardQuestions[nAnswered - 1];
 
   return cardResults.get(cardID);
 }
+
+// Return the current review question given the state of progress and feedback.
+export const cardQuestionCurrent = ({ nAnswered }, cardQuestions, showingAnswer) =>
+  cardQuestions[showingAnswer
+    ? nAnswered - 1 // showing feedback for answer to the last question
+    : nAnswered // showing the next question
+  ];
+
+// Return whether a person has finished reviewing given the state of progress and feedback.
+export const finishedReviewing = ({ nAnswered }, cardQuestions, showingAnswer) =>
+  nAnswered === cardQuestions.length && !showingAnswer;
+
+// Return the percent of correct answers given the state of progress.
+// Although review deck buttons should be disabled if no cards are due,
+// make sure not to divide by zero!
+export const percentCorrect = ({ nAnswered, nCorrect }) => nAnswered === 0
+  ? 0
+  : Math.round(100 * nCorrect / nAnswered);

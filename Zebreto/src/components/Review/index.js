@@ -16,8 +16,11 @@ import {
   updateCard,
 } from './../../actions';
 import {
+  cardQuestionCurrent,
   cardResultMostRecentlyAnswered,
+  finishedReviewing,
   getInitialStateReviewing,
+  percentCorrect,
   progressAnswered,
 } from './../../data/reviewing';
 
@@ -67,6 +70,10 @@ class Review extends Component {
   }
 
   _answerQuestion = (correct) => {
+    // TODO
+    // Is it safer to use setState function argument to update progress?
+    // If yes, how to dispatch updateCard action according to the updated value?
+    // Or instead, think differently about how component state relates to application state?
     const progress = progressAnswered(this.state.progress, this._cardQuestions, correct);
 
     // Update application state when the last question for a card is answered.
@@ -89,50 +96,35 @@ class Review extends Component {
     });
   }
 
-  _contents() {
-    const { feedback, progress } = this.state;
-    const { showingAnswer, correctlyAnswered } = feedback;
-    const { nAnswered, nCorrect } = progress;
-
-    if (showingAnswer || nAnswered < this._cardQuestions.length) {
-      const index = showingAnswer
-        ? nAnswered - 1 // show feedback for answer to the last question
-        : nAnswered; // show the next question
-
-      return (
-        <ViewCard
-          answerQuestion={this._answerQuestion}
-          cardQuestion={this._cardQuestions[index]}
-          continueReviewing={this._continueReviewing}
-          correctlyAnswered={correctlyAnswered}
-          showingAnswer={showingAnswer}
-          stopReviewing={this.props.stopReviewing}
-        />
-      );
-    }
-
-    // Show the percent answered correctly after all questions have been answered.
-    // Although review deck buttons should be disabled if no cards are due:
-    // make sure not to divide by zero!
-    // make sure to display a button to leave this scene!
-    return (
-      <View>
-        {nAnswered !== 0 &&
-          <InterfaceText style={layout.normal}>
-            {`${Math.round(100 * nCorrect / nAnswered)}% correct`}
-          </InterfaceText>
-        }
-        <Button style={colors.continue} onPress={this.props.stopReviewing}>
-          <InterfaceText>Return to Decks</InterfaceText>
-        </Button>
-      </View>
-    );
-  }
-
   render() {
+    const { feedback: { showingAnswer, correctlyAnswered }, progress } = this.state;
+    const percent = percentCorrect(progress);
+
     return (
       <View style={layout.scene}>
-        {this._contents()}
+        {
+          finishedReviewing(progress, this._cardQuestions, showingAnswer)
+            ? (
+                <View>
+                  <InterfaceText style={layout.normal}>
+                    {`${percent}% correct`}
+                  </InterfaceText>
+                  <Button style={colors.continue} onPress={this.props.stopReviewing}>
+                    <InterfaceText>Return to Decks</InterfaceText>
+                  </Button>
+                </View>
+              )
+            : (
+                <ViewCard
+                  answerQuestion={this._answerQuestion}
+                  cardQuestion={cardQuestionCurrent(progress, this._cardQuestions, showingAnswer)}
+                  continueReviewing={this._continueReviewing}
+                  correctlyAnswered={correctlyAnswered}
+                  showingAnswer={showingAnswer}
+                  stopReviewing={this.props.stopReviewing}
+                />
+             )
+        }
       </View>
     );
   }
