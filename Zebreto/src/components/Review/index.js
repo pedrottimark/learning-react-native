@@ -98,7 +98,6 @@ class Review extends Component {
 
   render() {
     const { feedback: { showingAnswer, correctlyAnswered }, progress } = this.state;
-    const percent = percentCorrect(progress);
 
     return (
       <View style={layout.scene}>
@@ -107,7 +106,7 @@ class Review extends Component {
             ? (
                 <View>
                   <InterfaceText style={layout.normal}>
-                    {`${percent}% correct`}
+                    {`${percentCorrect(progress)}% correct`}
                   </InterfaceText>
                   <Button style={colors.continue} onPress={this.props.stopReviewing}>
                     <InterfaceText>Return to Decks</InterfaceText>
