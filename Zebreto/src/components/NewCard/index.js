@@ -35,7 +35,7 @@ class NewCard extends Component {
     deckID: PropTypes.string.isRequired,
     createCard: PropTypes.func.isRequired,
     reviewDeck: PropTypes.func.isRequired,
-    someCardDue: PropTypes.bool.isRequired,
+    noCardsDue: PropTypes.bool.isRequired,
     status: PropTypes.string.isRequired,
     stopCreating: PropTypes.func.isRequired,
   };
@@ -98,7 +98,7 @@ class NewCard extends Component {
 
   // The button is disabled when no cards are due for review.
   _reviewDisabled() {
-    return !this.props.someCardDue;
+    return this.props.noCardsDue;
   }
 
   _createButton() {
@@ -150,7 +150,7 @@ class NewCard extends Component {
 // A container component subscribes to relevant parts of state in the Redux store.
 const mapStateToProps = ({ cards, deckID, status }) => ({
   deckID,
-  someCardDue: someCardDueForReview(cards, deckID, moment()),
+  noCardsDue: !someCardDueForReview(cards, deckID, moment()),
   status,
 });
 const mapDispatchToProps = {
