@@ -714,7 +714,7 @@ class NewCard extends Component {
 
   // The button is disabled when no cards are due for review.
   _reviewDisabled() {
-    return !this.props.someCardDue;
+    return this.props.noCardsDue;
   }
 
   render() {
@@ -730,7 +730,7 @@ class NewCard extends Component {
 
 const mapStateToProps = ({ cards, deckID }) => ({
   deckID,
-  someCardDue: someCardDueForReview(cards, deckID, moment()),
+  noCardsDue: !someCardDueForReview(cards, deckID, moment()),
 });
 const mapDispatchToProps = {
   reviewDeck,
@@ -853,7 +853,7 @@ The `reviewing` module applies the “Learn Once, Write Anywhere” principle of
 
 * `getInitialStateReviewing` encapsulates the impure steps to return properties of the initial component state, just as an *action creator* can encapsulate impure steps to create an action object to change application state.
 * `progressAnswered` returns a property of the next component state, just as a child *reducer* returns a property of the next application state.
-* `cardQuestionCurrent`, `cardResultMostRecentlyAnswered`, `finishedReviewing`, and `percentCorrect` are *selector* functions that computes derived data from component state, just as `someCardDueForReview` computes derived data from application state.
+* `cardResultMostRecentlyAnswered` is a *selector* function that computes derived data from component state, just as `someCardDueForReview` computes derived data from application state.
 
 ## React Native
 
