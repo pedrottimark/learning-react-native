@@ -769,7 +769,7 @@ import {
   updateCard,
 } from './../../actions';
 import {
-  cardResultMostRecentlyAnswered,
+  cardResultAnswered,
   getInitialStateReviewing,
   progressAnswered,
 } from './../../data/reviewing';
@@ -807,19 +807,19 @@ class Review extends Component {
   }
 
   _answerQuestion = (correct) => {
-    const progress = progressAnswered(this.state.progress, this._cardQuestions, correct);
-
     // Update application state when the last question for a card is answered.
-    const cardResult = cardResultMostRecentlyAnswered(progress, this._cardQuestions);
+    // cardResult is the part of component state that directly affects application state.
+    // setState changes the cardResults in the progress property of component state.
+    const cardResult = cardResultAnswered(this.state.progress, this._cardQuestions, correct);
     if (cardResult.nUnanswered === 0) {
       this.props.updateCard(cardResult.cardID, cardResult.correct);
     }
 
     // Update component state and show feedback for every answer.
-    this.setState({
-      progress,
+    this.setState(({ progress }) => ({
+      progress: progressAnswered(progress, this._cardQuestions, correct),
       feedback: this._feedbackAnswered(correct),
-    });
+    }));
   }
 
   // Click to acknowledge the feedback.
@@ -853,7 +853,7 @@ The `reviewing` module applies the “Learn Once, Write Anywhere” principle of
 
 * `getInitialStateReviewing` encapsulates the impure steps to return properties of the initial component state, just as an *action creator* can encapsulate impure steps to create an action object to change application state.
 * `progressAnswered` returns a property of the next component state, just as a child *reducer* returns a property of the next application state.
-* `cardResultMostRecentlyAnswered` is a *selector* function that computes derived data from component state, just as `someCardDueForReview` computes derived data from application state.
+* `cardResultAnswered` is a *selector* function that computes derived data from component state, just as `someCardDueForReview` computes derived data from application state.
 
 ## React Native
 
