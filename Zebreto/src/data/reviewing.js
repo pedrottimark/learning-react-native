@@ -12,18 +12,18 @@ import {
 } from './../data/cards';
 
 // Return the review question for one side of a card.
-function cardQuestionObject(cards, card, sideQuestion, nOther) {
+function cardQuestionObject(card, cardsOther, sideQuestion, nSample) {
   const sideAnswer = sideOpposite(sideQuestion);
   const answerCorrect = card[sideAnswer];
-  const cardsOther = sample(cards.filter((cardOther) => cardOther.id !== card.id), nOther); // impure
-  const answersOther = cardsOther.map((cardOther) => cardOther[sideAnswer]);
+  const cardsSample = sample(cardsOther, nSample); // impure
+  const answersSample = cardsSample.map((cardSample) => cardSample[sideAnswer]);
 
   return {
     cardID: card.id,
     sideQuestion, // not used but could determine lang, dir, font, and so on
     question: card[sideQuestion],
     answerCorrect,
-    answers: shuffle([answerCorrect, ...answersOther]), // impure
+    answers: shuffle([answerCorrect, ...answersSample]), // impure
   };
 }
 
@@ -42,8 +42,8 @@ const cardResultChangesAnswered = (cardResult, correct) => ({
 });
 
 // Return a map to access card result object by card id.
-const cardResultsMap = (cards, sideKeys) =>
-  new Map(cards.map((card) => [card.id, cardResultObject(card, sideKeys.length)]));
+const cardResultsMap = (cards, nUnanswered) =>
+  new Map(cards.map((card) => [card.id, cardResultObject(card, nUnanswered)]));
 
 // reviewing properties
 
@@ -53,13 +53,14 @@ const cardResultsMap = (cards, sideKeys) =>
 export function getInitialStateReviewing(cards, deckID, date) {
   const cardsInDeck = filterCardsInDeck(cards, deckID);
   const cardsDue = filterCardsDueForReview(cardsInDeck, date);
-  const nOther = 3; // Each card has up to 3 other answers.
+  const nSample = 3; // Each card has up to 3 other answers selected randomly.
   const cardQuestions = [];
 
   // There are two times as many elements as cards that are due.
   cardsDue.forEach((card) => {
+    const cardsOther = cardsInDeck.filter((cardOther) => cardOther.id !== card.id);
     sideKeys.forEach((side) => {
-      cardQuestions.push(cardQuestionObject(cardsInDeck, card, side, nOther)); // impure
+      cardQuestions.push(cardQuestionObject(card, cardsOther, side, nSample)); // impure
     });
   });
 
@@ -68,7 +69,7 @@ export function getInitialStateReviewing(cards, deckID, date) {
   return {
     cardQuestions: shuffle(cardQuestions), // impure
     progress: {
-      cardResults: cardResultsMap(cardsDue, sideKeys),
+      cardResults: cardResultsMap(cardsDue, sideKeys.length),
       nAnswered: 0,
       nCorrect: 0,
     },
