@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import {
   Text,
 } from 'react-native';
@@ -6,18 +6,16 @@ import {
 import fonts from './../styles/fonts';
 
 // The component to display most of the text.
-export default class NormalText extends Component {
-  static displayName = 'NormalText';
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-    style: Text.propTypes.style,
-  };
+const NormalText = ({ children, style }) => (
+  <Text style={[fonts.normal, style]}>
+    {children}
+  </Text>
+);
 
-  render() {
-    return (
-      <Text style={[fonts.normal, this.props.style]}>
-        {this.props.children}
-      </Text>
-    );
-  }
-}
+NormalText.displayName = 'NormalText';
+NormalText.propTypes = {
+  children: PropTypes.node.isRequired,
+  style: Text.propTypes.style,
+};
+
+export default NormalText;

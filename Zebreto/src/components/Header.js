@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {
   Image,
   StyleSheet,
@@ -11,18 +11,16 @@ import logo from './../../icon.png';
 import fonts from './../styles/fonts';
 
 // The component above every scene in the app.
-export default class Header extends Component {
-  static displayName = 'Header';
+const Header = () => (
+  <View style={styles.header}>
+    <Image style={styles.logo} source={logo}/>
+    <Text style={fonts.header}>ZEBRETO</Text>
+  </View>
+);
 
-  render() {
-    return (
-      <View style={styles.header}>
-        <Image style={styles.logo} source={logo}/>
-        <Text style={fonts.header}>ZEBRETO</Text>
-      </View>
-    );
-  }
-}
+Header.displayName = 'Header';
+
+export default Header;
 
 const styles = StyleSheet.create({
   header: {

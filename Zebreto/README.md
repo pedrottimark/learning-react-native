@@ -1009,15 +1009,11 @@ Here is the relevant code in `src/components/NormalText.js`:
 import fonts from './../styles/fonts';
 
 // The component to display most of the text.
-export default class NormalText extends Component {
-  render() {
-    return (
-      <Text style={[fonts.normal, this.props.style]}>
-        {this.props.children}
-      </Text>
-    );
-  }
-}
+const NormalText = ({ children, style }) => (
+  <Text style={[fonts.normal, style]}>
+    {children}
+  </Text>
+);
 ```
 
 Here is the relevant code in `/src/styles/layout.js`:
