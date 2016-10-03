@@ -35,25 +35,15 @@ const cardResultObject = (card, nUnanswered) => ({
   correct: true, // until answered incorrectly
 });
 
-// Return the next state of card result properties
-// when the review question is answered for a side.
-const cardResultAnswered = (cardResult, correct) =>
-  Object.assign({}, cardResult, {
-    nUnanswered: cardResult.nUnanswered - 1,
-    correct: cardResult.correct && correct,
-  });
+// Return the changes to a card result when a question is answered.
+const cardResultChangesAnswered = (cardResult, correct) => ({
+  nUnanswered: cardResult.nUnanswered - 1,
+  correct: cardResult.correct && correct,
+});
 
 // Return a map to access card result object by card id.
 const cardResultsMap = (cards, sideKeys) =>
   new Map(cards.map((card) => [card.id, cardResultObject(card, sideKeys.length)]));
-
-// Return the new state of the card results when a question is answered.
-function replaceCardResultAnswered(cardResults, cardID, correct) {
-  const cardResultPrev = cardResults.get(cardID);
-  const cardResultNext = cardResultAnswered(cardResultPrev, correct);
-
-  return cardResults.set(cardID, cardResultNext);
-}
 
 // reviewing properties
 
@@ -85,14 +75,23 @@ export function getInitialStateReviewing(cards, deckID, date) {
   };
 }
 
+// Return the next state of the current card result when a question is answered.
+// This is the part of component state that directly affects application state.
+export function cardResultAnswered(progress, cardQuestions, correct) {
+  const { cardResults, nAnswered } = progress;
+  const { cardID } = cardQuestions[nAnswered];
+  const cardResult = cardResults.get(cardID);
+
+  return Object.assign({}, cardResult, cardResultChangesAnswered(cardResult, correct));
+}
+
 // Return the next state of progress when a question is answered.
-// Like a reducer. Impure for ECMAScript Map. Pure for Immutable Map.
 export function progressAnswered(progress, cardQuestions, correct) {
   const { cardResults, nAnswered, nCorrect } = progress;
   const { cardID } = cardQuestions[nAnswered];
 
   return {
-    cardResults: replaceCardResultAnswered(cardResults, cardID, correct),
+    cardResults: cardResults.set(cardID, cardResultAnswered(progress, cardQuestions, correct)),
     nAnswered: nAnswered + 1,
     nCorrect: correct
       ? nCorrect + 1
@@ -101,14 +100,6 @@ export function progressAnswered(progress, cardQuestions, correct) {
 }
 
 // Selectors
-
-// Return the changed card result given the next state of progress.
-export function cardResultMostRecentlyAnswered(progress, cardQuestions) {
-  const { cardResults, nAnswered } = progress;
-  const { cardID } = cardQuestions[nAnswered - 1];
-
-  return cardResults.get(cardID);
-}
 
 // Return the current review question given the state of progress and feedback.
 export const cardQuestionCurrent = ({ nAnswered }, cardQuestions, showingAnswer) =>

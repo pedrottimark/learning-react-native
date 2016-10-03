@@ -17,7 +17,7 @@ import {
 } from './../../actions';
 import {
   cardQuestionCurrent,
-  cardResultMostRecentlyAnswered,
+  cardResultAnswered,
   finishedReviewing,
   getInitialStateReviewing,
   percentCorrect,
@@ -70,23 +70,19 @@ class Review extends Component {
   }
 
   _answerQuestion = (correct) => {
-    // TODO
-    // Is it safer to use setState function argument to update progress?
-    // If yes, how to dispatch updateCard action according to the updated value?
-    // Or instead, think differently about how component state relates to application state?
-    const progress = progressAnswered(this.state.progress, this._cardQuestions, correct);
-
     // Update application state when the last question for a card is answered.
-    const cardResult = cardResultMostRecentlyAnswered(progress, this._cardQuestions);
+    // cardResult is the part of component state that directly affects application state.
+    // setState changes the cardResults in the progress property of component state.
+    const cardResult = cardResultAnswered(this.state.progress, this._cardQuestions, correct);
     if (cardResult.nUnanswered === 0) {
       this.props.updateCard(cardResult.cardID, cardResult.correct);
     }
 
     // Update component state and show feedback for every answer.
-    this.setState({
-      progress,
+    this.setState(({ progress }) => ({
+      progress: progressAnswered(progress, this._cardQuestions, correct),
       feedback: this._feedbackAnswered(correct),
-    });
+    }));
   }
 
   // Click to acknowledge the feedback.
