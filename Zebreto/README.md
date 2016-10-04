@@ -695,7 +695,7 @@ This is known as *derived* data, because it is computed from:
 
 > Whenever possible, compute values on-the-fly to ensure that they don't get out of sync.
 
-In a previous section, you saw `mapStateToProps` merge properties of application state into the `props` of a container component whenever they change. It can also merge derived data returned from a selector.
+In a previous section, you saw `mapStateToProps` merge properties of application state into the `props` of a container component whenever they change. It can also merge derived data `noCardsDue` computed using the `someCardDueForReview` selector.
 
 Here is the relevant code in `src/components/NewCard/index.js`:
 
@@ -712,15 +712,10 @@ class NewCard extends Component {
     this.props.reviewDeck(this.props.deckID);
   }
 
-  // The button is disabled when no cards are due for review.
-  _reviewDisabled() {
-    return this.props.noCardsDue;
-  }
-
   render() {
     return (
       <View>
-        <Button onPress={this._reviewDeck} disabled={this._reviewDisabled()}>
+        <Button onPress={this._reviewDeck} disabled={this.props.noCardsDue}>
           <InterfaceText>Review Deck</InterfaceText>
         </Button>
       </View>

@@ -29,22 +29,18 @@ export default class Deck extends PureComponent {
     this.props.reviewDeck(this.props.deck.id);
   }
 
-  // The button is disabled when no cards are due for review.
-  _reviewDisabled() {
-    return this.props.nCardsDue === 0;
-  }
-
   _createCards = () => {
     this.props.createCards(this.props.deck.id);
   }
 
   render() {
+    const { deck: { name }, nCardsDue } = this.props;
     return (
       <View style={layout.row}>
-        <Button style={[colors.review, styles.reviewButton]} onPress={this._reviewDeck} disabled={this._reviewDisabled()}>
+        <Button style={[colors.review, styles.reviewButton]} onPress={this._reviewDeck} disabled={nCardsDue === 0}>
           <View style={layout.rowAlignedLeftAndRight}>
-            <NormalText>{this.props.deck.name}</NormalText>
-            <NormalText>{`${this.props.nCardsDue} due`}</NormalText>
+            <NormalText>{name}</NormalText>
+            <NormalText>{`${nCardsDue} due`}</NormalText>
           </View>
         </Button>
         <Button style={[colors.create, styles.createButton]} onPress={this._createCards}>

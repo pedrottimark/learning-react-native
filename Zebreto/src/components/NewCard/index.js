@@ -80,11 +80,6 @@ class NewCard extends Component {
     this._inputBack.clear();
   }
 
-  // The button is disabled when either side of the card is still empty.
-  _createDisabled() {
-    return this.state.front === '' || this.state.back === '';
-  }
-
   // Click to acknowledge the message that appears if creating fails.
   _continue = () => {
     this.setState({
@@ -96,13 +91,9 @@ class NewCard extends Component {
     this.props.reviewDeck(this.props.deckID);
   }
 
-  // The button is disabled when no cards are due for review.
-  _reviewDisabled() {
-    return this.props.noCardsDue;
-  }
-
   _createButton() {
-    return this.props.status === 'CREATING_CARD_FAILED' && !this.state.continuing
+    const { continuing, front, back } = this.state;
+    return this.props.status === 'CREATING_CARD_FAILED' && !continuing
       ? (
           <MessageButton style={colors.failure} onPress={this._continue}>
             <NormalText>Card already exists</NormalText>
@@ -110,7 +101,7 @@ class NewCard extends Component {
           </MessageButton>
         )
       : (
-          <Button style={colors.create} onPress={this._createCard} disabled={this._createDisabled()}>
+          <Button style={colors.create} onPress={this._createCard} disabled={front === '' || back === ''}>
             <InterfaceText>Create Card</InterfaceText>
           </Button>
         );
@@ -136,7 +127,7 @@ class NewCard extends Component {
               clearOnSubmit={false}
             />
             {this._createButton()}
-            <Button style={colors.review} onPress={this._reviewDeck} disabled={this._reviewDisabled()}>
+            <Button style={colors.review} onPress={this._reviewDeck} disabled={this.props.noCardsDue}>
               <InterfaceText>Review Deck</InterfaceText>
             </Button>
             <Button style={colors.stop} onPress={this.props.stopCreating}>
