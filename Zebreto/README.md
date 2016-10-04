@@ -73,9 +73,12 @@ Example code in this file is often oversimplified. For more information, see the
 The code includes several features of ECMAScript 2015, also known as ES6:
 
 * arrow functions
+* `class` and `extends`
 * computed property names
+* concise method syntax
 * `const` or `let` instead of `var` declarations
 * destructuring
+* `Map` collection, and also `Immutable.Map`
 * modules: `import` and `export`
 * object property initializer shorthand
 * spread operator
