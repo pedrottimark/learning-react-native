@@ -19,7 +19,7 @@ import {
   reviewDeck,
 } from './../../actions';
 import {
-  countCardsDueForReview,
+  nCardsDueForReview,
 } from './../../data/cards';
 
 import colors from './../../styles/colors';
@@ -35,7 +35,7 @@ const Decks = ({ createCards, createDeck, decks, deleteAll, nCardsDue, reviewDec
         decks.map((deck) => (
           <Deck key={deck.id}
             deck={deck}
-            nCardsDue={nCardsDue.get(deck.id)}
+            nCardsDue={nCardsDue(deck.id)}
             createCards={createCards}
             reviewDeck={reviewDeck}
           />
@@ -57,7 +57,7 @@ Decks.propTypes = {
     id: PropTypes.string.isRequired,
   })).isRequired,
   deleteAll: PropTypes.func.isRequired,
-  nCardsDue: PropTypes.objectOf(PropTypes.number).isRequired,
+  nCardsDue: PropTypes.func.isRequired,
   reviewDeck: PropTypes.func.isRequired,
   status: PropTypes.string.isRequired,
 };
@@ -65,7 +65,7 @@ Decks.propTypes = {
 // A container component subscribes to relevant parts of state in the Redux store.
 const mapStateToProps = ({ cards, decks, status }) => ({
   decks,
-  nCardsDue: countCardsDueForReview(cards, decks, moment()),
+  nCardsDue: nCardsDueForReview(cards, decks, moment()),
   status,
 });
 const mapDispatchToProps = {

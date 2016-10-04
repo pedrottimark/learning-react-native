@@ -19,9 +19,11 @@ export const deckObject = (name) => ({
 
 // decks array
 
-// Return a collection given an array read from storage as JSON.
-// Just in case the the internal collection changed from array to Immutable.List.
+// Conversions to and from internal collection and stored array.
+// Return a collection, given an array read from storage as JSON.
 export const decksCollection = (decks) => decks;
+// Return an array written to storage as JSON, given a collection.
+export const decksArray = (decks) => decks;
 
 // Initial state of the decks:
 // before they have been read from storage

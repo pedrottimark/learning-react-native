@@ -52,9 +52,11 @@ function cardChangesReviewed(card, correct, date) {
 
 // cards array
 
-// Return a collection given an array read from storage as JSON.
-// Just in case the the internal collection changed from array to Immutable.List.
+// Conversions to and from internal collection and stored array.
+// Return a collection, given an array read from storage as JSON.
 export const cardsCollection = (cards) => cards;
+// Return an array written to storage as JSON, given a collection.
+export const cardsArray = (cards) => cards;
 
 // Initial state of the cards:
 // before they have been read from storage
@@ -109,8 +111,8 @@ export const filterCardsDueForReview = (cards, date) =>
 export const someCardDueForReview = (cards, deckID, date) =>
   cards.some((card) => card.deckID === deckID && dueForReview(card, date));
 
-// Return a map from deck id to number of cards due.
-export function countCardsDueForReview(cards, decks, date) {
+// Return a function that returns the number of cards due, given a deck id.
+export function nCardsDueForReview(cards, decks, date) {
   const nCardsDue = new Map(decks.map((deck) => [deck.id, 0]));
 
   cards.forEach((card) => {
@@ -120,5 +122,5 @@ export function countCardsDueForReview(cards, decks, date) {
     }
   });
 
-  return nCardsDue;
+  return (id) => nCardsDue.get(id);
 }

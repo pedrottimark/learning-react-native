@@ -1,10 +1,12 @@
 import { AsyncStorage } from 'react-native';
 
 import {
+  cardsArray,
   cardsCollection,
   cardsInitial,
 } from './cards';
 import {
+  decksArray,
   decksCollection,
   decksInitial,
 } from './decks';
@@ -46,7 +48,7 @@ export function readData(callback) {
 
 // Asynchronous function to set cards data after it has changed.
 export function writeCards(cards) {
-  AsyncStorage.setItem(CARDS_KEY, JSON.stringify(cards), function (error) {
+  AsyncStorage.setItem(CARDS_KEY, JSON.stringify(cardsArray(cards)), function (error) {
     if (error) {
       console.error('AsyncStorage writeCards error: ', error.message);
     }
@@ -55,7 +57,7 @@ export function writeCards(cards) {
 
 // Asynchronous function to set decks data after it has changed.
 export function writeDecks(decks) {
-  AsyncStorage.setItem(DECKS_KEY, JSON.stringify(decks), function (error) {
+  AsyncStorage.setItem(DECKS_KEY, JSON.stringify(decksArray(decks)), function (error) {
     if (error) {
       console.error('AsyncStorage writeDecks error: ', error.message);
     }
