@@ -5,7 +5,7 @@ import {
 
 import Button from './../Button';
 import InterfaceText from './../InterfaceText';
-import Deck from './Deck';
+import DeckList from './DeckList';
 import DeckCreation from './DeckCreation';
 
 import { connect } from 'react-redux';
@@ -26,22 +26,9 @@ import colors from './../../styles/colors';
 import layout from './../../styles/layout';
 
 // The route scene component to start activities with decks.
-// View wrapper around decks is necessary to separate their `flex: 1`
-// from the `flex: 1` of the scene layout!
 const Decks = ({ createCards, createDeck, decks, deleteAll, nCardsDue, reviewDeck, status }) => (
   <View style={layout.scene}>
-    <View>
-      {
-        decks.map((deck) => (
-          <Deck key={deck.id}
-            deck={deck}
-            nCardsDue={nCardsDue(deck.id)}
-            createCards={createCards}
-            reviewDeck={reviewDeck}
-          />
-        ))
-      }
-    </View>
+    <DeckList createCards={createCards} decks={decks} nCardsDue={nCardsDue} reviewDeck={reviewDeck}/>
     <DeckCreation createDeck={createDeck} status={status}/>
     <Button style={colors.delete} onPress={deleteAll} disabled={decks.length === 0}>
       <InterfaceText>Delete All</InterfaceText>

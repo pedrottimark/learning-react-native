@@ -22,7 +22,7 @@ Zebreto has screens for decks, card creation, and card review:
 
 ### Creating a new deck and cards
 
-1. On the decks screen, tap the tan input box that displays **name of a new deck** as a placeholder, enter a deck name, and then tap **return**.
+1. On the decks screen, tap the tan input box that displays **name of a new deck** as a placeholder, enter a deck name, and then tap **return**. The keyboard covers the tan input box while you are tapping the name :(
 2. On the card creation screen, tap the first tan input box that displays **front of a new card** as a placeholder, enter the front, and then tap **return**.
 3. Tap the second tan input box that displays **back of a new card** as a placeholder, enter the back, and then tap **return**.
 4. Tap **Create Card**.
@@ -1071,8 +1071,8 @@ The Zebreto project depends on the following packages for development only:
 
 >Here are some ideas to get you started:
 * Add the ability to delete decks
+* Add a screen where you can view all cards in a deck
 * Display statistics about the card strengths in a deck
-* Change the `Decks` component to use a `ListView`
 
 * The original code as described in chapter 9 of the book:
 
