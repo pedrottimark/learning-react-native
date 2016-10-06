@@ -11,6 +11,8 @@ export default class DeckCreation extends Component {
   static displayName = 'DeckCreation';
   static propTypes = {
     createDeck: PropTypes.func.isRequired,
+    onBlur: PropTypes.func.isRequired,
+    onFocus: PropTypes.func.isRequired,
     status: PropTypes.string.isRequired,
   };
 
@@ -40,7 +42,7 @@ export default class DeckCreation extends Component {
           </MessageButton>
         )
       : (
-          <Input placeholder='name of a new deck' onEntry={this._onEntry}/>
+          <Input placeholder='name of a new deck' onEntry={this._onEntry} onBlur={this.props.onBlur} onFocus={this.props.onFocus}/>
         );
   }
 }

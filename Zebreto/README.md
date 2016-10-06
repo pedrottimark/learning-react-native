@@ -22,12 +22,13 @@ Zebreto has screens for decks, card creation, and card review:
 
 ### Creating a new deck and cards
 
-1. On the decks screen, tap the tan input box that displays **name of a new deck** as a placeholder, enter a deck name, and then tap **return**. The keyboard covers the tan input box while you are tapping the name :(
-2. On the card creation screen, tap the first tan input box that displays **front of a new card** as a placeholder, enter the front, and then tap **return**.
-3. Tap the second tan input box that displays **back of a new card** as a placeholder, enter the back, and then tap **return**.
-4. Tap **Create Card**.
-5. Do one of the following:
-    * To create another card, go to step 2.
+1. On the decks screen, tap the tan input box that displays **name of a new deck** as a placeholder, enter a deck name. The box moves to the top of the screen so the keyboard does not cover the name.
+2. When you have entered the name, tap **return**.
+3. On the card creation screen, tap the first tan input box that displays **front of a new card** as a placeholder, enter the front, and then tap **return**.
+4. Tap the second tan input box that displays **back of a new card** as a placeholder, enter the back, and then tap **return**.
+5. Tap **Create Card**.
+6. Do one of the following:
+    * To create another card, go to step 3.
     * To review the new cards, tap **Review Deck**.
     * To return to the decks screen, tap **Stop Creating**.
 

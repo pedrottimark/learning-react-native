@@ -13,8 +13,10 @@ export default class Input extends Component {
   static displayName = 'Input';
   static propTypes = {
     clearOnSubmit: PropTypes.bool,
+    onBlur: PropTypes.func,
     onChange: PropTypes.func,
     onEntry: PropTypes.func.isRequired,
+    onFocus: PropTypes.func,
     placeholder: PropTypes.string,
     refInput: PropTypes.func,
     style: View.propTypes.style,
@@ -63,7 +65,9 @@ export default class Input extends Component {
         autoCapitalize='none'
         autoCorrect={false}
         multiline={false}
+        onBlur={this.props.onBlur}
         onChangeText={this._onChange}
+        onFocus={this.props.onFocus}
         onSubmitEditing={this._onSubmit}
         placeholder={this.props.placeholder}
         ref={this._refInput}

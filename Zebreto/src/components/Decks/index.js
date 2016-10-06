@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   View,
 } from 'react-native';
@@ -26,28 +26,65 @@ import colors from './../../styles/colors';
 import layout from './../../styles/layout';
 
 // The route scene component to start activities with decks.
-const Decks = ({ createCards, createDeck, decks, deleteAll, nCardsDue, reviewDeck, status }) => (
-  <View style={layout.scene}>
-    <DeckList createCards={createCards} decks={decks} nCardsDue={nCardsDue} reviewDeck={reviewDeck}/>
-    <DeckCreation createDeck={createDeck} status={status}/>
-    <Button style={colors.delete} onPress={deleteAll} disabled={decks.length === 0}>
-      <InterfaceText>Delete All</InterfaceText>
-    </Button>
-  </View>
-);
+class Decks extends Component {
+  static displayName = 'Decks';
+  static propTypes = {
+    createCards: PropTypes.func.isRequired,
+    createDeck: PropTypes.func.isRequired,
+    decks: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+    })).isRequired,
+    deleteAll: PropTypes.func.isRequired,
+    nCardsDue: PropTypes.func.isRequired,
+    reviewDeck: PropTypes.func.isRequired,
+    status: PropTypes.string.isRequired,
+  };
 
-Decks.displayName = 'Decks';
-Decks.propTypes = {
-  createCards: PropTypes.func.isRequired,
-  createDeck: PropTypes.func.isRequired,
-  decks: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-  })).isRequired,
-  deleteAll: PropTypes.func.isRequired,
-  nCardsDue: PropTypes.func.isRequired,
-  reviewDeck: PropTypes.func.isRequired,
-  status: PropTypes.string.isRequired,
-};
+  constructor(props) {
+    super(props);
+    this.state = {
+      focusInCreation: false,
+    };
+  }
+
+  _onBlurCreation = () => {
+    this.setState({
+      focusInCreation: false,
+    });
+  }
+
+  _onFocusCreation = () => {
+    this.setState({
+      focusInCreation: true,
+    });
+  }
+
+  render() {
+    const { createCards, createDeck, decks, deleteAll, nCardsDue, reviewDeck, status } = this.props;
+    const { focusInCreation } = this.state;
+
+    // The key prop is necessary for the component to keep focus
+    // when it is rendered at the top of the screen
+    // so the keyboard does not cover the name that a person is tapping.
+    const deckCreation = (<DeckCreation key='DeckCreation'
+      createDeck={createDeck}
+      status={status}
+      onBlur={this._onBlurCreation}
+      onFocus={this._onFocusCreation}
+    />);
+
+    return (
+      <View style={layout.scene}>
+        { focusInCreation && deckCreation }
+        <DeckList createCards={createCards} decks={decks} nCardsDue={nCardsDue} reviewDeck={reviewDeck}/>
+        { !focusInCreation && deckCreation }
+        <Button style={colors.delete} onPress={deleteAll} disabled={decks.length === 0}>
+          <InterfaceText>Delete All</InterfaceText>
+        </Button>
+      </View>
+    );
+  }
+}
 
 // A container component subscribes to relevant parts of state in the Redux store.
 const mapStateToProps = ({ cards, decks, status }) => ({
