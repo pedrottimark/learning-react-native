@@ -24,6 +24,7 @@ export default class DeckCreation extends Component {
   }
 
   _continue = () => {
+    this.props.onBlur();
     this.setState({
       continuing: true,
     });
