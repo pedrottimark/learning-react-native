@@ -37,12 +37,21 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
   },
 
-  // Absolute position of a child component relative to its parent
-  // causes it to overlay the sibling that precedes it in document order.
-  atTopRight: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
+  // For parent of a leaf component that can shrink so MessageButton displays only one line.
+  flexShrinkAncestor: {
+    flex: 1,
+    flexDirection: 'row',
+    flexShrink: 1,
+  },
+
+  // For leaf component that can shrink so MessageButton displays only one line.
+  flexShrinkDescendant: {
+    flexShrink: 1,
+  },
+
+  // For child of MessageButton that is aligned at the right.
+  atRight: {
+    marginLeft: padding,
   },
 
   // For leaf components that extend View, therefore have block layout.
