@@ -42,7 +42,6 @@ export default class DeckCreation extends Component {
     });
   }
 
-  //<NormalText style={layout.flexShrink} numberOfLines={1} ellipsizeMode='tail'>{`${this.state.name} already exabcdefghijklmnopxists`}</NormalText>
   render() {
     return this.props.status === 'CREATING_DECK_FAILED' && !this.state.continuing
       ? (

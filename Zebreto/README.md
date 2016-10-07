@@ -693,7 +693,7 @@ export default class DeckCreation extends Component {
 }
 ```
 
-The preceding code omits `style` and other props that shrink and ellipsize the name (if needed) to display the message on one line.
+Soon you will see the `style` and other props to display the message on one line.
 
 ### Selectors
 
@@ -975,7 +975,7 @@ export default function ({ status }) {
 }
 ```
 
-### Styles for responsive design
+### Typography for responsive design
 
 > The reusable text components in Zebreto scale the font size based on screen width in order to accommodate different device sizes.
 
@@ -1062,6 +1062,102 @@ export default class Input extends Component {
     );
   }
 }
+```
+
+### Layout for responsive design
+
+When creating a deck fails, the message fits in the same area as the input box:
+
+![the message fits in the same area as the input box](screenshots/message_deck_failed.png)
+
+Here are component and style properties that work together to limit the message to one line:
+
+* `numberOfLines` on the `NormalText` that displays the name and the `View` that displays the phrase
+* `flexShrink` on the `NormalText` and the `View`
+* `ellipsizeMode` on the `NormalText`
+
+Here is the relevant code in `src/components/Deck/DeckCreation.js`:
+
+```js
+export default class DeckCreation extends Component {
+  render() {
+    return this.props.status === 'CREATING_DECK_FAILED' && !this.state.continuing
+      ? (
+          <MessageButton style={colors.failure} onPress={this._continue}>
+            <View style={layout.flexShrinkAncestor} numberOfLines={1}>
+              <NormalText style={layout.flexShrinkDescendant} numberOfLines={1} ellipsizeMode='tail'>{this.state.name}</NormalText>
+              <NormalText> already exists</NormalText>
+            </View>
+            <NormalText style={layout.atRight}>Continue</NormalText>
+          </MessageButton>
+        )
+      : (
+          <Input placeholder='name of a new deck' onEntry={this._onEntry}/>
+        );
+  }
+}
+```
+
+Here is the relevant code in `src/components/MessageButton.js`:
+
+```js
+import layout from './../styles/layout';
+
+// The component to display a message until the user clicks to continue.
+const MessageButton = ({ children, onPress, style }) => (
+  <Button style={style} onPress={onPress}>
+    <View style={layout.rowAlignedLeftAndRight}>
+      {children}
+    </View>
+  </Button>
+);
+```
+
+Here is the relevant code in `src/components/NormalText.js`:
+
+```js
+import fonts from './../styles/fonts';
+
+// The component to display most of the text.
+const NormalText = ({ children, ellipsizeMode, numberOfLines, style }) => (
+  <Text style={[fonts.normal, style]} numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode}>
+    {children}
+  </Text>
+);
+```
+
+Here is the relevant code in `/src/styles/layout.js`:
+
+```js
+const padding = 10;
+
+export default StyleSheet.create({
+  // A parent component for two children in a row:
+  // first child component aligned at the left
+  // second child component aligned at the right
+  rowAlignedLeftAndRight: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  // For parent of a leaf component that can shrink so MessageButton displays only one line.
+  flexShrinkAncestor: {
+    flex: 1,
+    flexDirection: 'row',
+    flexShrink: 1,
+  },
+
+  // For leaf component that can shrink so MessageButton displays only one line.
+  flexShrinkDescendant: {
+    flexShrink: 1,
+  },
+
+  // For child of MessageButton that is aligned at the right.
+  atRight: {
+    marginLeft: padding,
+  },
+});
 ```
 
 ## Dependencies
