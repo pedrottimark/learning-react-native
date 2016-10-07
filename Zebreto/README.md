@@ -665,13 +665,20 @@ export default class DeckCreation extends Component {
 
   _onEntry = (name) => {
     this.props.createDeck(name);
+    this.setState({
+      continuing: false,
+      name,
+    });
   }
 
   render() {
     return this.props.status === 'CREATING_DECK_FAILED' && !this.state.continuing
       ? (
           <MessageButton onPress={this._continue}>
-            <NormalText>Deck already exists</NormalText>
+            <View>
+              <NormalText>{this.state.name}</NormalText>
+              <NormalText> already exists</NormalText>
+            </View>
             <NormalText>Continue</NormalText>
           </MessageButton>
         )
@@ -681,6 +688,8 @@ export default class DeckCreation extends Component {
   }
 }
 ```
+
+The preceding code omits `style` and other props that shrink and ellipsize the name (if needed) to display the message on one line.
 
 ### Selectors
 
