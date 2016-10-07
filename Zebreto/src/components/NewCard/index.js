@@ -80,6 +80,10 @@ class NewCard extends Component {
     this._inputBack.clear();
   }
 
+  _createDisabled() {
+    return this.state.front === '' || this.state.back === '';
+  }
+
   // Click to acknowledge the message that appears if creating fails.
   _continue = () => {
     this.setState({
@@ -91,9 +95,16 @@ class NewCard extends Component {
     this.props.reviewDeck(this.props.deckID);
   }
 
+  _reviewDisabled() {
+    return this.state.front !== '' || this.state.back !== '' || this.props.noCardsDue;
+  }
+
+  _stopDisabled() {
+    return this.state.front !== '' || this.state.back !== '';
+  }
+
   _createButton() {
-    const { continuing, front, back } = this.state;
-    return this.props.status === 'CREATING_CARD_FAILED' && !continuing
+    return this.props.status === 'CREATING_CARD_FAILED' && !this.state.continuing
       ? (
           <MessageButton style={colors.failure} onPress={this._continue}>
             <NormalText>Card already exists</NormalText>
@@ -101,7 +112,7 @@ class NewCard extends Component {
           </MessageButton>
         )
       : (
-          <Button style={colors.create} onPress={this._createCard} disabled={front === '' || back === ''}>
+          <Button style={colors.create} onPress={this._createCard} disabled={this._createDisabled()}>
             <InterfaceText>Create Card</InterfaceText>
           </Button>
         );
@@ -127,10 +138,10 @@ class NewCard extends Component {
               clearOnSubmit={false}
             />
             {this._createButton()}
-            <Button style={colors.review} onPress={this._reviewDeck} disabled={this.props.noCardsDue}>
+            <Button style={colors.review} onPress={this._reviewDeck} disabled={this._reviewDisabled()}>
               <InterfaceText>Review Deck</InterfaceText>
             </Button>
-            <Button style={colors.stop} onPress={this.props.stopCreating}>
+            <Button style={colors.stop} onPress={this.props.stopCreating} disabled={this._stopDisabled()}>
               <InterfaceText>Stop Creating</InterfaceText>
             </Button>
           </View>
