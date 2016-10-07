@@ -107,8 +107,8 @@ class NewCard extends Component {
     return this.props.status === 'CREATING_CARD_FAILED' && !this.state.continuing
       ? (
           <MessageButton style={colors.failure} onPress={this._continue}>
-            <NormalText>Card already exists</NormalText>
-            <NormalText>Continue</NormalText>
+            <NormalText style={layout.flexShrinkDescendant} numberOfLines={1} ellipsizeMode='tail'>Card already exists</NormalText>
+            <NormalText style={layout.atRight}>Continue</NormalText>
           </MessageButton>
         )
       : (
