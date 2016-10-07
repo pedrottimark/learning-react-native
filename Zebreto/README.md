@@ -84,6 +84,10 @@ The code includes several features of ECMAScript 2015, also known as ES6:
 * object property initializer shorthand
 * spread operator
 
+It includes a feature of ECMAScript 2016, also known as ES7:
+
+* `Array.prototype.includes`
+
 It also includes two proposed features for a future ECMAScript version:
 
 * class static fields
