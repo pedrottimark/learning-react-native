@@ -2,7 +2,7 @@
 
 import { Map } from 'immutable'; // shadow ECMAScript Map
 
-import { sample, shuffle } from 'lodash';
+import { sample, shuffle, uniq } from 'lodash';
 
 import {
   filterCardsDueForReview,
@@ -12,18 +12,29 @@ import {
 } from './../data/cards';
 
 // Return the review question for one side of a card.
-function cardQuestionObject(card, cardsOther, sideQuestion, nSample) {
+function cardQuestionObject(card, cardsInDeck, sideQuestion, nSample) {
+  const question = card[sideQuestion];
   const sideAnswer = sideOpposite(sideQuestion);
   const answerCorrect = card[sideAnswer];
-  const cardsSample = sample(cardsOther, nSample); // impure
-  const answersSample = cardsSample.map((cardSample) => cardSample[sideAnswer]);
+
+  // Exclude any synonym answers for the same question.
+  const synonyms = cardsInDeck
+    .filter((cardSynonym) => cardSynonym[sideQuestion] === question)
+    .map((cardSynonym) => cardSynonym[sideAnswer]);
+  const answersOther = uniq(cardsInDeck
+    .filter((cardOther) => synonyms.includes(cardOther[sideAnswer]))
+    .map((cardOther) => cardOther[sideAnswer])
+  );
+
+  const answersSample = sample(answersOther, nSample); // impure
+  const answers = shuffle([answerCorrect, ...answersSample]); // impure
 
   return {
     cardID: card.id,
     sideQuestion, // not used but could determine lang, dir, font, and so on
-    question: card[sideQuestion],
+    question,
     answerCorrect,
-    answers: shuffle([answerCorrect, ...answersSample]), // impure
+    answers,
   };
 }
 
@@ -58,9 +69,8 @@ export function getInitialStateReviewing(cards, deckID, date) {
 
   // There are two times as many elements as cards that are due.
   cardsDue.forEach((card) => {
-    const cardsOther = cardsInDeck.filter((cardOther) => cardOther.id !== card.id);
     sideKeys.forEach((side) => {
-      cardQuestions.push(cardQuestionObject(card, cardsOther, side, nSample)); // impure
+      cardQuestions.push(cardQuestionObject(card, cardsInDeck, side, nSample)); // impure
     });
   });
 
