@@ -22,7 +22,7 @@ function cardQuestionObject(card, cardsInDeck, sideQuestion, nSample) {
     .filter((cardSynonym) => cardSynonym[sideQuestion] === question)
     .map((cardSynonym) => cardSynonym[sideAnswer]);
   const answersOther = uniq(cardsInDeck
-    .filter((cardOther) => synonyms.includes(cardOther[sideAnswer]))
+    .filter((cardOther) => !synonyms.includes(cardOther[sideAnswer]))
     .map((cardOther) => cardOther[sideAnswer])
   );
 
