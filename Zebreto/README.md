@@ -1085,13 +1085,19 @@ Here are component and style properties that work together to limit the message 
 Here is the relevant code in `src/components/Deck/DeckCreation.js`:
 
 ```js
+import colors from './../../styles/colors';
+import layout from './../../styles/layout';
+
 export default class DeckCreation extends Component {
   render() {
     return this.props.status === 'CREATING_DECK_FAILED' && !this.state.continuing
       ? (
           <MessageButton style={colors.failure} onPress={this._continue}>
             <View style={layout.flexShrinkAncestor} numberOfLines={1}>
-              <NormalText style={layout.flexShrinkDescendant} numberOfLines={1} ellipsizeMode='tail'>{this.state.name}</NormalText>
+              <NormalText style={layout.flexShrinkDescendant} numberOfLines={1}
+                  ellipsizeMode='tail'>
+                {this.state.name}
+              </NormalText>
               <NormalText> already exists</NormalText>
             </View>
             <NormalText style={layout.atRight}>Continue</NormalText>
