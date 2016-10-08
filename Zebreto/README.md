@@ -729,10 +729,14 @@ class NewCard extends Component {
     this.props.reviewDeck(this.props.deckID);
   }
 
+  _reviewDisabled() {
+    return this.props.noCardsDue;
+  }
+
   render() {
     return (
       <View>
-        <Button onPress={this._reviewDeck} disabled={this.props.noCardsDue}>
+        <Button onPress={this._reviewDeck} disabled={this._reviewDisabled()}>
           <InterfaceText>Review Deck</InterfaceText>
         </Button>
       </View>
