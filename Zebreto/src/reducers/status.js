@@ -12,14 +12,19 @@ const statusInitial = '';
 export default function (status = statusInitial, action) {
   switch (action.type) {
 
+  case 'CREATE_CARD_REQUESTED':
+    return 'CREATING_CARD_REQUESTED';
+
   case 'CREATE_CARD_FAILED':
     return 'CREATING_CARD_FAILED';
+
+  case 'CREATE_CARD_SUCCEEDED':
+    return 'CREATING_CARD_SUCCEEDED';
 
   case 'CREATE_DECK_FAILED':
     return 'CREATING_DECK_FAILED';
 
   case 'CREATE_CARDS':
-  case 'CREATE_CARD_SUCCEEDED':
   case 'CREATE_DECK_SUCCEEDED': // let a person start creating cards in a new deck
     return 'CREATING_CARDS';
 

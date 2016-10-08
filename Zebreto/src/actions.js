@@ -16,6 +16,10 @@ import {
 
 // Action creators related to cards.
 
+const createCardRequested = () => ({
+  type: 'CREATE_CARD_REQUESTED',
+});
+
 const createCardFailed = () => ({
   type: 'CREATE_CARD_FAILED',
 });
@@ -27,11 +31,18 @@ const createCardSucceeded = (card) => ({
 
 // Thunk: Create unless a card with front and back already exists in the deck.
 // A thunk can be used to dispatch actions only if a certain condition is met.
-export const createCard = (front, back, deckID) => (dispatch, getState) =>
-  dispatch(cardExists(getState().cards, front, back, deckID)
+export const createCard = (front, back, deckID) => (dispatch, getState) => {
+  // Even though testing for an existing card is synchronous,
+  // dispatch an action as if fetching data from a server:
+  // The extra requested status separates consecutive failed or succeeded status.
+  // As a pseudo-example of asynchronous actions.
+  dispatch(createCardRequested());
+
+  return dispatch(cardExists(getState().cards, front, back, deckID)
     ? createCardFailed()
     : createCardSucceeded(cardObject(front, back, deckID, moment()))
   );
+};
 
 
 export const deleteCard = (cardID) => ({

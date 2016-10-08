@@ -13,7 +13,9 @@ export default function ({ status }) {
   switch (status) {
 
   case 'CREATING_CARDS':
+  case 'CREATING_CARD_REQUESTED':
   case 'CREATING_CARD_FAILED':
+  case 'CREATING_CARD_SUCCEEDED':
     return NewCard;
 
   case 'REVIEWING_CARDS':

@@ -42,15 +42,21 @@ class NewCard extends Component {
 
   constructor(props) {
     super(props);
-    this.state = this._getInitialState();
+    this.state = this._getState(false);
   }
 
-  _getInitialState() {
+  _getState(continuing) {
     return {
       front: '',
       back: '',
-      continuing: false,
+      continuing,
     };
+  }
+
+  _resetForNextCard(continuing) {
+    this.setState(this._getState(continuing));
+    this._inputFront.clear();
+    this._inputBack.clear();
   }
 
   _onChangeFront = (text) => {
@@ -75,47 +81,39 @@ class NewCard extends Component {
 
   _createCard = () => {
     this.props.createCard(this.state.front, this.state.back, this.props.deckID);
-    this.setState(this._getInitialState());
-    this._inputFront.clear();
-    this._inputBack.clear();
   }
 
   _createDisabled() {
     return this.state.front === '' || this.state.back === '';
   }
 
-  // Click to acknowledge the message that appears if creating fails.
-  _continue = () => {
-    this.setState({
-      continuing: true,
-    });
-  }
-
   _reviewDeck = () => {
     this.props.reviewDeck(this.props.deckID);
   }
 
+  // Prevent a person from forgetting to click Create Card before Review Card.
   _reviewDisabled() {
-    return this.state.front !== '' || this.state.back !== '' || this.props.noCardsDue;
+    return this.props.noCardsDue || this.state.front !== '' || this.state.back !== '';
   }
 
-  _stopDisabled() {
-    return this.state.front !== '' || this.state.back !== '';
+  // Click to acknowledge the message that appears if creating fails.
+  _continue = () => {
+    this._resetForNextCard(true);
   }
 
-  _createButton() {
-    return this.props.status === 'CREATING_CARD_FAILED' && !this.state.continuing
-      ? (
-          <MessageButton style={colors.failure} onPress={this._continue}>
-            <NormalText style={layout.flexShrinkDescendant} numberOfLines={1} ellipsizeMode='tail'>Card already exists</NormalText>
-            <NormalText style={layout.atRight}>Continue</NormalText>
-          </MessageButton>
-        )
-      : (
-          <Button style={colors.create} onPress={this._createCard} disabled={this._createDisabled()}>
-            <InterfaceText>Create Card</InterfaceText>
-          </Button>
-        );
+  // React to a prop transition before render() is called by updating the state.
+  // Calling this.setState() within this function will not trigger an additional render.
+  componentWillReceiveProps({ status }) {
+    // The extra requested status separates consecutive failed or succeeded status,
+    // so the method receives each of them, even though the method does not receive it.
+    if (status === 'CREATING_CARD_FAILED') { // cannot compare to 'CREATING_CARD_REQUESTED'
+      this.setState({
+        continuing: false, // reset just one property of component state
+      });
+    }
+    else if (status === 'CREATING_CARD_SUCCEEDED') {
+      this._resetForNextCard(false);
+    }
   }
 
   render() {
@@ -137,11 +135,24 @@ class NewCard extends Component {
               onEntry={this._onChangeBack}
               clearOnSubmit={false}
             />
-            {this._createButton()}
+            {
+              this.props.status === 'CREATING_CARD_FAILED' && !this.state.continuing
+                ? (
+                    <MessageButton style={colors.failure} onPress={this._continue}>
+                      <NormalText style={layout.flexShrinkDescendant} numberOfLines={1} ellipsizeMode='tail'>Card already exists</NormalText>
+                      <NormalText style={layout.atRight}>Continue</NormalText>
+                    </MessageButton>
+                  )
+                : (
+                    <Button style={colors.create} onPress={this._createCard} disabled={this._createDisabled()}>
+                      <InterfaceText>Create Card</InterfaceText>
+                    </Button>
+                  )
+            }
             <Button style={colors.review} onPress={this._reviewDeck} disabled={this._reviewDisabled()}>
               <InterfaceText>Review Deck</InterfaceText>
             </Button>
-            <Button style={colors.stop} onPress={this.props.stopCreating} disabled={this._stopDisabled()}>
+            <Button style={colors.stop} onPress={this.props.stopCreating}>
               <InterfaceText>Stop Creating</InterfaceText>
             </Button>
           </View>
