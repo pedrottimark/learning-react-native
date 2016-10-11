@@ -64,7 +64,6 @@ export default class DeckList extends Component {
     return (
       <ListView
         dataSource={this.state.dataSource}
-        enableEmptySections={true}
         renderRow={({ deck, nCardsDue }, sectionID, deckID) =>
           <Deck key={deckID}
             deck={deck}
